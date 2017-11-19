@@ -1,0 +1,13 @@
+
+<table>
+	<tr>
+		<th ng-repeat="value in currentKeys">
+			{{value}}
+		</th>
+	<tr>
+	<tr ng-repeat="table in currentTableData | orderBy : 'accid'">
+		<td ng-repeat="(key, value) in table">
+			{{value}}
+		</td>
+	</tr>
+</table>
