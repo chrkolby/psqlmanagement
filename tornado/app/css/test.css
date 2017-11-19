@@ -47,11 +47,6 @@ body{
     margin-left: 150px; /* Same as the width of the sidenav */
 }
 
-@media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
-}
-
 table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
@@ -91,6 +86,7 @@ td, th {
 	position: absolute;
     left: 50%;
 	margin-left:-30%;
+	bottom:0;
 }
 
 .pagination li{

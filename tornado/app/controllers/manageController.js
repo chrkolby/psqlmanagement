@@ -1,22 +1,7 @@
 app.controller("manageController", function ($scope, $location, $http, PagerService) {
     $scope.$parent.manage = true;
-	$scope.searchText = 'J25 S29';
 	$scope.currentTableData = [];
 	$scope.pager = {};
-	
-	$http({
-		method: 'GET',
-		type: 'json',
-		url: 'manage/gettables'
-		}).then(function successCallback(response) {
-			$scope.data = response.data;
-			console.log($scope.data);
-			// this callback will be called asynchronously
-			// when the response is available
-		}, function errorCallback(response) {
-			// called asynchronously if an error occurs
-			// or server returns response with an error status.
-		});
 		
 	$scope.$parent.getTable = function(table_name){
 		var data = {"table_name":table_name};
@@ -33,11 +18,7 @@ app.controller("manageController", function ($scope, $location, $http, PagerServ
 			});
 			$scope.setPage = setPage;
 			setPage(1);
-			// this callback will be called asynchronously
-			// when the response is available
 		}, function errorCallback(response) {
-			// called asynchronously if an error occurs
-			// or server returns response with an error status.
 		});
 	}
 	
