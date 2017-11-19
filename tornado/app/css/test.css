@@ -1,30 +1,50 @@
-.sidenav {
-    height: 100%;
-    width: 200px;
+body{
+	margin:0;
+}
+
+.topnav {
+    height: 50px;
+    width: 100%;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: #111;
+    background-color: #5f5f5f;
     overflow-x: hidden;
-    padding-top: 20px;
+}
+
+.topnav .content{
+	margin-left:150px;
+	height:100%;
+	width:100%;
+}
+
+.sidenav {
+    height: 100%;
+    width: 150px;
+    position: fixed;
+    z-index: 1;
+    top: 50px;
+    left: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
 }
 
 .sidenav a {
-    padding: 6px 6px 6px 32px;
+    padding: 6px 6px 6px 12px;
     text-decoration: none;
-    font-size: 25px;
-    color: #818181;
+    font-size: 18px;
+    color: black;
 	display:block;
 }
 
 .sidenav a:hover {
-    color: #f1f1f1;
+    background-color: orange;
 	cursor:pointer;
 }
 
 .main {
-    margin-left: 200px; /* Same as the width of the sidenav */
+    margin-left: 150px; /* Same as the width of the sidenav */
 }
 
 @media screen and (max-height: 450px) {
@@ -36,6 +56,7 @@ table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+	white-space: nowrap;
 	}
 
 td, th {
@@ -63,22 +84,52 @@ td, th {
 	height:100%;
 }
 
-li{
-	list-style:none;
-	width:100%;
-	height:15%;
+
+
+.pagination{
+	text-align: center;
+	position: absolute;
+    left: 50%;
+	margin-left:-30%;
 }
 
-li a{
-	background-color:gray;
-	color:white;
-	font-weight:bold;
-	text-decoration:none;
+.pagination li{
+	display: inline;
 }
 
-li a:hover{
-	background-color:orange;
+.active{
+	background-color:blue;
+}
+
+.pagination li a{
+	position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #337ab7;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
 	cursor:pointer;
+	 -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.num{
+	width:25px;
+}
+
+.pagination li a:hover{
+	background-color:#ADD8E6;
+}
+.pagination li a:active{
+	background-color:#ADD8E6;
 }
 
 .TopMenuBar_pall{

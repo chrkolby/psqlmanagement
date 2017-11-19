@@ -1,13 +1,31 @@
-
-<table>
+<table style="height:100%;">
 	<tr>
 		<th ng-repeat="value in currentKeys">
 			{{value}}
 		</th>
 	<tr>
-	<tr ng-repeat="table in currentTableData | orderBy : 'accid'">
+	<tr ng-repeat="table in items | orderBy : 'accid'">
 		<td ng-repeat="(key, value) in table">
 			{{value}}
 		</td>
+		
 	</tr>
+	
 </table>
+<ul ng-if="pager.pages.length" class="pagination">
+	<li ng-class="{disabled:pager.currentPage === 1}">
+		<a ng-click="setPage(1)">First</a>
+	</li>
+	<li ng-class="{disabled:pager.currentPage === 1}">
+		<a ng-click="setPage(pager.currentPage - 1)">Previous</a>
+	</li>
+	<li ng-repeat="page in pager.pages" ng-class="{active:pager.currentPage === page}">
+		<a class="num" ng-click="setPage(page)">{{page}}</a>
+	</li>               
+	<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
+		<a ng-click="setPage(pager.currentPage + 1)">Next</a>
+	</li>
+	<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
+		<a ng-click="setPage(pager.totalPages)">Last</a>
+	</li>
+</ul>

@@ -21,6 +21,8 @@ app.config(function($routeProvider) {
     })
 });
 
+app.factory('PagerService', PagerService);
+
 app.controller("mainController", function ($scope, $location, $http) {
 	console.log('main');
 	$scope.manage = false;
