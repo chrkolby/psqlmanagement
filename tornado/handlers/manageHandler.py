@@ -15,23 +15,59 @@ class BaseHandler(web.RequestHandler):
     def db(self):
         return self.application.db
 
-class TableListHandler(BaseHandler):
+class SchemaHandler(BaseHandler):
 
 	@gen.coroutine
-	def get(self):
-		cursor = yield self.db.execute("""SELECT table_name FROM information_schema.tables
+	def get(self, table_name=None):
+		if(table_name):
+			cursor = yield self.db.execute("""select column_name, data_type, character_maximum_length, is_nullable
+			from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table_name))
+		else:
+			cursor = yield self.db.execute("""SELECT table_name FROM information_schema.tables
 			WHERE table_schema = 'public'""")
-		all = cursor.fetchall();
-		tables = []
-		for table in all:
-			tables.append(table['table_name'])
-		self.write(json.dumps(tables)) 
+		all = cursor.fetchall()
+		returnval = {'data': all}
+		self.write(returnval) 
+		
+	def post(self):
+		postData = tornado.escape.json_decode(self.request.body)
+		print(postData)
 
-class TableContentHandler(BaseHandler):
+class TableHandler(BaseHandler):
 
 	@gen.coroutine
-	def post(self):
-		data = tornado.escape.json_decode(self.request.body)
-		cursor = yield self.db.execute("SELECT * from %s" % data['table_name']);
-		all = cursor.fetchall();
-		self.write(json.dumps(all)) 
+	def get(self, table):
+		search = self.get_argument('search', None);
+		
+		if(search == None):
+			search = "";
+		try:
+			
+			cursor = yield self.db.execute("""select column_name from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
+				
+			all = cursor.fetchall();
+				
+			sql = "select * from %s where " % table;
+			i = 1
+			for table in all:
+				print(table['column_name'])
+				sql = sql + "'" + table['column_name'] + "' LIKE '%{0}%'".format(search);
+				if(len(all) > i):
+					sql = sql + ' OR ';
+				i += 1
+					
+			print(sql);
+			
+			cursor = yield self.db.execute(sql)
+			all = cursor.fetchall()
+			data = {
+				'status' : 200,
+				'data' : all
+			}
+		except:
+			data = {
+				'status' : 404,
+				'message' : 'Table not found'
+			}
+		self.write(json.dumps(data)) 
+	

@@ -1,64 +1,70 @@
-var app = angular.module('myApp', ['ngRoute']);
+var app = angular.module('myApp', ['ngRoute', 'ngResource']);
 
-app.config(function($routeProvider) {
-    $routeProvider
-    .when("/", {
+ app.config(function($routeProvider, $locationProvider) {
+	$locationProvider.hashPrefix('');
+	$routeProvider
+	.when("/", {
+        templateUrl : "app/views/content.html",
+		controller: 'contentController'
+    })
+	.when("/login", {
         templateUrl : "app/views/login.html",
 		controller: 'mainController'
     })
-	.when("/home", {
-        templateUrl : "app/views/home.html"
+    .when("/Content", {
+        templateUrl : "app/views/content.html",
+		controller: 'contentController'
     })
-    .when("/manage", {
-        templateUrl : "app/views/manage.html",
-		controller: 'manageController'
-
+	.when("/Structure", {
+        templateUrl : "app/views/content.html",
+		controller: 'structureController'
     })
 	 .when("/accounts", {
         templateUrl : "app/views/accounts.html",
 		controller: 'accountController'
     })
+	.otherwise({redirectTo:'/'});
 });
 
 app.factory('PagerService', PagerService);
 
-app.controller("tableController", function ($scope, $location, $http) {
-	console.log('tableController');
-	$scope.manage = false;
-	
-	$http({
-		method: 'GET',
-		type: 'json',
-		url: 'manage/gettables'
-		}).then(function successCallback(response) {
-			$scope.data = response.data;
-			console.log($scope.data);
-			// this callback will be called asynchronously
-			// when the response is available
-		}, function errorCallback(response) {
-			// called asynchronously if an error occurs
-			// or server returns response with an error status.
-		});
+app.factory("TableManage", function(){
+	var currentTableContent = [];
+	var currentTable = '';
+	return{
+		getTable:function(){
+			return currentTable;
+		},
+		setTable:function(table){
+			currentTable = table;
+			return currentTable;
+		},
+		getTableContent:function(){
+			return currentTableContent;
+		},
+		setTableContent:function(data){
+			currentTableContent = data;
+			return currentTableContent;
+		}
+	}
 });
 
 app.controller("mainController", function ($scope, $location, $http) {
 	console.log('mainController');
 	$scope.manage = false;
-	/*$http({
-		method: 'GET',
-		type: 'json',
-		url: 'manage/gettables'
-		}).then(function successCallback(response) {
-			$scope.data = response.data;
-			console.log($scope.data);
-			// this callback will be called asynchronously
-			// when the response is available
-		}, function errorCallback(response) {
-			// called asynchronously if an error occurs
-			// or server returns response with an error status.
-		});
-		*/
+	$scope.activeMenuTop = '';
+	
+	$scope.setActive = function(item){
+		$scope.activeMenuTop = item;
+	}
+	
 	$scope.login = function (user) {
+		
+		SharedService.getData('gettables').then(function(response){
+			var data = response.data;
+			$scope.data = (data.data);
+		});
+		
 		$http({
 			method: 'POST',
 			type: 'json',
