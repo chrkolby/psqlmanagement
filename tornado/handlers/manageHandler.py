@@ -37,26 +37,26 @@ class TableHandler(BaseHandler):
 
 	@gen.coroutine
 	def get(self, table):
-		search = self.get_argument('search', None);
+		search = self.get_argument('search', "");
 		
-		if(search == None):
-			search = "";
+		if(search == 'undefined'):
+			search = ''
+
 		try:
-			
-			cursor = yield self.db.execute("""select column_name from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
+			cursor = yield self.db.execute("""select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
 				
 			all = cursor.fetchall();
 				
 			sql = "select * from %s where " % table;
 			i = 1
 			for table in all:
-				print(table['column_name'])
-				sql = sql + "'" + table['column_name'] + "' LIKE '%{0}%'".format(search);
-				if(len(all) > i):
-					sql = sql + ' OR ';
-				i += 1
-					
-			print(sql);
+				print("i : {0} len(all) : {1}".format(i, len(all)))
+				print(table['data_type'])
+				if(table['data_type'] == 'character varying'):
+					sql = sql  + table['column_name'] + " LIKE '%{0}%' OR ".format(search);
+
+			sql = sql[:-3]
+			print(sql)
 			
 			cursor = yield self.db.execute(sql)
 			all = cursor.fetchall()
@@ -69,5 +69,6 @@ class TableHandler(BaseHandler):
 				'status' : 404,
 				'message' : 'Table not found'
 			}
+		print(data)
 		self.write(json.dumps(data)) 
 	

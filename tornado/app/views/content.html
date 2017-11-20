@@ -1,6 +1,6 @@
 <div style="padding-left:150px; padding-top:50px; margin:10px;">
 	<div ng-include src="'app/views/tables.html'"></div>
-	<div ng-if="pager.pages.length">
+	<div ng-if="activeMenu">
 		<input class="searchBox" type="text" name="search" ng-model="Search" ng-change="SearchResults(Search)" required>
 	</div>
 	<div style="float:left;">

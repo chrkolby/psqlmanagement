@@ -17,6 +17,7 @@ app.controller("contentController", function ($scope, $location, $http, PagerSer
 			$scope.currentTableData = data.data;
 
 			console.log($scope.currentTableData);
+			$scope.setPage = setPage;
 			setPage(1);
 		});
 	}
@@ -43,9 +44,7 @@ app.controller("contentController", function ($scope, $location, $http, PagerSer
 				console.log(TableManage.getTableContent());
 				
 				$scope.currentKeys = Object.keys($scope.currentTableData[0]);
-				$scope.currentTableData.sort(function(a,b) {
-					return a['accid'] - b['accid'];
-				});
+
 				$scope.setPage = setPage;
 				setPage(1);
 			});
@@ -57,7 +56,9 @@ app.controller("contentController", function ($scope, $location, $http, PagerSer
             return;
         }
         $scope.pager = PagerService.GetPager($scope.currentTableData.length, page);
-
+		$scope.currentTableData.sort(function(a,b) {
+			return a['accid'] - b['accid'];
+		});
         $scope.items = $scope.currentTableData.slice($scope.pager.startIndex, $scope.pager.endIndex + 1);
 
     }
