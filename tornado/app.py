@@ -55,7 +55,7 @@ class Login(web.RequestHandler):
 		data = tornado.escape.json_decode(self.request.body)
 		ioloop = IOLoop.current()
 		self.connected = False
-		application.db = momoko.Pool(
+		self.application.db = momoko.Pool(
 			dsn='dbname={0} user={1} password={2} '
 				'host=127.0.0.1 port=5432'.format(data['database'],data['username'],data['password']),
 			size=1,
@@ -63,9 +63,9 @@ class Login(web.RequestHandler):
 			cursor_factory=psycopg2.extras.RealDictCursor,
 		)
 		#future = application.db.connect()
-		future = application.db.connect()
+		future = self.application.db.connect()
 		try:
-			yield application.db.execute("SELECT 1;")
+			yield self.application.db.execute("SELECT 1;")
 			self.connected = True
 		except:
 			self.connected = False
@@ -93,8 +93,9 @@ if __name__ == '__main__':
 	
 	application = web.Application([
 		(r'/accounts/getaccs', handlers.accountHandler.AccountsHandler),
-		(r'/manage/gettables', handlers.manageHandler.TableListHandler),
-		(r'/manage/gettablecontent', handlers.manageHandler.TableContentHandler),
+		(r'/API/Schema', handlers.manageHandler.SchemaHandler),
+		(r'/API/Schema/(.*)', handlers.manageHandler.SchemaHandler),
+		(r'/API/Table/(.*)', handlers.manageHandler.TableHandler),
 		(r'/Login',Login),
 		(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	, **settings)
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 	], **settings)"""
 	
 	ioloop = IOLoop.instance()
-	"""
+	
 	ioloop = IOLoop.current()
 	application.db = momoko.Pool(
 		dsn='dbname=astro user=astro password=kolbykolby '
@@ -123,7 +124,7 @@ if __name__ == '__main__':
 	ioloop.add_future(future, lambda f: ioloop.stop())
 	ioloop.start()
 	future.result()  # raises exception on connection error
-"""
+
 	http_server = HTTPServer(application)
 	http_server.listen(8888, 'localhost')
 	ioloop.start()
