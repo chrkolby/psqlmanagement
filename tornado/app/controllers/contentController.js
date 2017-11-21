@@ -52,13 +52,19 @@ app.controller("contentController", function ($scope, $location, $http, PagerSer
 	}
 	
 	function setPage(page) {
-        if (page < 1 || page > $scope.pager.totalPages) {
+		console.log("current: " + $scope.pager.currentPage);
+		console.log("Total: " + $scope.pager.totalPages);
+		if ((page < 1 || page > $scope.pager.totalPages) && ($scope.currentTableData.length == 0 || page > 1)) {
             return;
         }
+		console.log("current: " + $scope.pager.currentPage);
+		console.log("Total: " + $scope.pager.totalPages);
         $scope.pager = PagerService.GetPager($scope.currentTableData.length, page);
 		$scope.currentTableData.sort(function(a,b) {
 			return a['accid'] - b['accid'];
 		});
+		console.log("current: " + $scope.pager.currentPage);
+		console.log("Total: " + $scope.pager.totalPages);
         $scope.items = $scope.currentTableData.slice($scope.pager.startIndex, $scope.pager.endIndex + 1);
 
     }

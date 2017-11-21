@@ -23,7 +23,7 @@
 				<a ng-class="{active : pager.currentPage == page}" class="num" ng-click="setPage(page)">{{page}}</a>
 			</li>               
 			<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
-				<a ng-click="setPage(pager.currentPage + 1)">Next</a>
+				<a class="disbabled" ng-click="setPage(pager.currentPage + 1)">Next</a>
 			</li>
 			<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
 				<a ng-click="setPage(pager.totalPages)">Last</a>
@@ -32,11 +32,13 @@
 	</div>
 	<table style="height:100%;">
 			<tr>
+				<th>Select</th>
 				<th ng-repeat="value in currentKeys">
 					{{value}}
 				</th>
 			<tr>
 			<tr ng-repeat="table in items | orderBy : 'accid'">
+				<td><input type="checkbox"></input></td>
 				<td ng-repeat="(key, value) in table">
 					{{value}}
 				</td>

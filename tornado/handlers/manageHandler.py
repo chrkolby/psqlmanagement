@@ -56,7 +56,6 @@ class TableHandler(BaseHandler):
 					sql = sql  + table['column_name'] + " LIKE '%{0}%' OR ".format(search);
 
 			sql = sql[:-3]
-			print(sql)
 			
 			cursor = yield self.db.execute(sql)
 			all = cursor.fetchall()
@@ -69,6 +68,5 @@ class TableHandler(BaseHandler):
 				'status' : 404,
 				'message' : 'Table not found'
 			}
-		print(data)
 		self.write(json.dumps(data)) 
 	
