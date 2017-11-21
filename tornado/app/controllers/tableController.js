@@ -14,7 +14,7 @@ app.controller("tableController", function ($scope, $location, SharedService, Ta
 	//$scope.activeMenu = TableManage.currentTable;
 	console.log($scope.activeMenu);
  
-	SharedService.getData('Schema').then(function(response){
+	SharedService.getData('Schema?token=onetwo').then(function(response){
 		var data = response.data;
 		$scope.data = (data.data);
 	});

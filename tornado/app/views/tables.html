@@ -10,6 +10,6 @@
 		</div>
 	</div>
 	<div class="sidenav">
-	  <a ng-class="{active : activeMenu === value['table_name']}" ng-click="getTable($event, value['table_name'])" ng-repeat="value in data | orderBy">{{value['table_name']}}</a>
+	  <a ng-class="{active : activeMenu === value['table_name']}" ng-click="getTable($event, value['table_name'])" ng-repeat="value in data | orderBy : 'table_name'">{{value['table_name']}}</a>
 	</div>
 </div>

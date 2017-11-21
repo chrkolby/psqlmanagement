@@ -11,22 +11,49 @@ import tornado
 import json
 
 class BaseHandler(web.RequestHandler):
-    @property
-    def db(self):
-        return self.application.db
+
+	def db(self, test=None):
+		print(test)
+		ioloop = IOLoop.current()
+			
+		self.application.db = momoko.Pool(
+			dsn='dbname=astro user=astro password=kolbykolby '
+				'host=127.0.0.1 port=5432',
+			size=1,
+			ioloop=ioloop,
+			cursor_factory=psycopg2.extras.RealDictCursor,
+		)
+			
+		self.application.db.connect()
+
+		return self.application.db
+	
+	def checkToken(self, token):
+		print(token)
+		if (token == "onetwo"):
+			return True;
+		
+		else:
+			return False;
+		
+	
 
 class SchemaHandler(BaseHandler):
 
 	@gen.coroutine
 	def get(self, table_name=None):
+		print(self.get_arguments('token'))
+		valid = self.checkToken(self.get_argument('token',''))
+		print(valid)
 		if(table_name):
-			cursor = yield self.db.execute("""select column_name, data_type, character_maximum_length, is_nullable
+			cursor = yield self.db().execute("""select column_name, data_type, character_maximum_length, is_nullable
 			from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table_name))
 		else:
-			cursor = yield self.db.execute("""SELECT table_name FROM information_schema.tables
+			cursor = yield self.db().execute("""SELECT table_name FROM information_schema.tables
 			WHERE table_schema = 'public'""")
 		all = cursor.fetchall()
 		returnval = {'data': all}
+
 		self.write(returnval) 
 		
 	def post(self):
@@ -43,7 +70,7 @@ class TableHandler(BaseHandler):
 			search = ''
 
 		try:
-			cursor = yield self.db.execute("""select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
+			cursor = yield self.db().execute("""select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
 				
 			all = cursor.fetchall();
 				
@@ -56,8 +83,8 @@ class TableHandler(BaseHandler):
 					sql = sql  + table['column_name'] + " LIKE '%{0}%' OR ".format(search);
 
 			sql = sql[:-3]
+			cursor = yield self.db().execute(sql)
 			
-			cursor = yield self.db.execute(sql)
 			all = cursor.fetchall()
 			data = {
 				'status' : 200,
@@ -68,5 +95,6 @@ class TableHandler(BaseHandler):
 				'status' : 404,
 				'message' : 'Table not found'
 			}
+
 		self.write(json.dumps(data)) 
 	

@@ -109,21 +109,21 @@ if __name__ == '__main__':
 	
 	ioloop = IOLoop.instance()
 	
-	ioloop = IOLoop.current()
-	application.db = momoko.Pool(
-		dsn='dbname=astro user=astro password=kolbykolby '
-			'host=127.0.0.1 port=5432',
-		size=1,
-		ioloop=ioloop,
-		cursor_factory=psycopg2.extras.RealDictCursor,
-	)
+	#ioloop = IOLoop.current()
+	##application.db = momoko.Pool(
+	#	dsn='dbname=astro user=astro password=kolbykolby '
+	#		'host=127.0.0.1 port=5432',
+	#	size=1,
+	#	ioloop=ioloop,
+	#	cursor_factory=psycopg2.extras.RealDictCursor,
+	#)
 
 		# this is a one way to run ioloop in sync
-	future = application.db.connect()
+	#future = application.db.connect()
 			
-	ioloop.add_future(future, lambda f: ioloop.stop())
-	ioloop.start()
-	future.result()  # raises exception on connection error
+	#ioloop.add_future(future, lambda f: ioloop.stop())
+	#ioloop.start()
+	#future.result()  # raises exception on connection error
 
 	http_server = HTTPServer(application)
 	http_server.listen(8888, 'localhost')

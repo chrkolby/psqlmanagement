@@ -6,13 +6,11 @@ app.controller("structureController", function ($scope, $location, $http, PagerS
 	
 	$scope.activeMenu = TableManage.getTable();
 
-	$scope.getTable = function($event, table_name){
-		
-		TableManage.setTable(table_name);
-		console.log(TableManage.getTable());
-		$scope.activeMenu = table_name;
+	$scope.$on('TEST', function(event, data) {
+        $scope.activeMenu = TableManage.getTable();
+		console.log(Date.now());
 		_init_();
-	}
+	});
 	
 	function _init_(){
 		var table_name = $scope.activeMenu;

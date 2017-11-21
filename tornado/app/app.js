@@ -49,13 +49,23 @@ app.factory("TableManage", function(){
 	}
 });
 
-app.controller("mainController", function ($scope, $location, $http) {
+
+
+app.controller("mainController", function ($scope, $location, $http, TableManage) {
 	console.log('mainController');
 	$scope.manage = false;
 	$scope.activeMenuTop = '';
 	
 	$scope.setActive = function(item){
 		$scope.activeMenuTop = item;
+	}
+	
+	$scope.getTable = function($event, table_name){
+		
+		TableManage.setTable(table_name);
+		console.log(Date.now());
+		$scope.$broadcast('TEST');
+		$scope.activeMenu = table_name;
 	}
 	
 	$scope.login = function (user) {
