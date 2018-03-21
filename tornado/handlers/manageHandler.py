@@ -17,7 +17,7 @@ class BaseHandler(web.RequestHandler):
 		ioloop = IOLoop.current()
 			
 		self.application.db = momoko.Pool(
-			dsn='dbname=astro user=astro password=kolbykolby '
+			dsn='dbname=astro user=user password=pass '
 				'host=127.0.0.1 port=5432',
 			size=1,
 			ioloop=ioloop,
