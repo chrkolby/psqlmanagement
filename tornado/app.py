@@ -92,7 +92,7 @@ class Register(web.RequestHandler):
 		ioloop = IOLoop.current()
 		self.connected = False
 		self.application.db = momoko.Pool(
-			dsn='dbname=postgres user=postgres password=kolbykolby '
+			dsn='dbname=postgres user=postgres password=password '
 				'host=127.0.0.1 port=5432',
 			size=1,
 			ioloop=ioloop,
