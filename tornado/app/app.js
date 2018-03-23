@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ngRoute', 'ngResource']);
+var app = angular.module('myApp', ['ngRoute', 'ngResource', 'ngCookies']);
 
  app.config(function($routeProvider, $locationProvider) {
 	$locationProvider.hashPrefix('');
@@ -7,7 +7,7 @@ var app = angular.module('myApp', ['ngRoute', 'ngResource']);
         templateUrl : "app/views/content.html",
 		controller: 'contentController'
     })
-	.when("/login", {
+	.when("/log", {
         templateUrl : "app/views/login.html",
 		controller: 'mainController'
     })
@@ -19,9 +19,21 @@ var app = angular.module('myApp', ['ngRoute', 'ngResource']);
         templateUrl : "app/views/content.html",
 		controller: 'structureController'
     })
-	 .when("/accounts", {
-        templateUrl : "app/views/accounts.html",
-		controller: 'accountController'
+	.when("/SQL", {
+        templateUrl : "app/views/SQL.html",
+		controller: 'SQLController'
+    })
+	.when("/Insert", {
+        templateUrl : "app/views/insert.html",
+		controller: 'insertController'
+    })
+	.when("/newtable", {
+        templateUrl : "app/views/newtable.html",
+		controller: 'newtableController'
+    })
+	.when("/Export", {
+        templateUrl : "app/views/export.html",
+		controller: 'exportController'
     })
 	.otherwise({redirectTo:'/'});
 });
@@ -51,29 +63,67 @@ app.factory("TableManage", function(){
 
 
 
-app.controller("mainController", function ($scope, $location, $http, TableManage) {
+app.controller("mainController", function ($scope, $location, $http, $cookies, TableManage) {
 	console.log('mainController');
 	$scope.manage = false;
-	$scope.activeMenuTop = '';
+	$scope.user = {};
+	$scope.newuser = {};
+	$scope.error = {};
+	$scope.info = {"type" : "login"};
 	
 	$scope.setActive = function(item){
 		$scope.activeMenuTop = item;
 	}
 	
 	$scope.getTable = function($event, table_name){
-		
 		TableManage.setTable(table_name);
-		console.log(Date.now());
 		$scope.$broadcast('TEST');
 		$scope.activeMenu = table_name;
 	}
 	
-	$scope.login = function (user) {
+	$scope.newTable = function(){
+		$scope.activeMenu = "newtable";
+	}
+	
+	$scope.formlogin = function(){
+		$scope.info.type = "login";
+	}
+	
+	$scope.formregister = function(){
+		$scope.info.type = "register";
+	}
+	
+	$scope.register = function(newuser){
 		
-		SharedService.getData('gettables').then(function(response){
-			var data = response.data;
-			$scope.data = (data.data);
-		});
+		if(newuser.password != newuser.confpassword){
+			
+			$scope.info.status = false;
+			$scope.passwordMatch = false;
+		}
+		
+		else{
+			
+			$scope.passwordMatch = true;
+			
+			$http({
+				method: 'POST',
+				type: 'json',
+				url: 'Register',
+				data: newuser
+			}).then(function successCallback(response) {
+					$scope.info.status = true
+					console.log(response);
+					if(response.data == "User and database created"){
+						location.reload();
+					}
+					$scope.info.message = response.data;
+				}, function errorCallback(response) {
+			});
+		}
+			
+	}
+	
+	$scope.login = function (user) {
 		
 		$http({
 			method: 'POST',
@@ -81,9 +131,9 @@ app.controller("mainController", function ($scope, $location, $http, TableManage
 			url: 'Login',
 			data: user
 		}).then(function successCallback(response) {
-				console.log(response.data);
 				if(response.data['Connected']){
-					$location.path( "/manage" );
+					$cookies.put('user', JSON.stringify(user));
+					$location.path("/");
 				}
 			}, function errorCallback(response) {
 		});
@@ -91,3 +141,17 @@ app.controller("mainController", function ($scope, $location, $http, TableManage
 		
 });
 
+app.run(['$rootScope', '$location', '$cookies', '$http',
+    function ($rootScope, $location, $cookies, $http) {
+ 
+        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+			$rootScope.currentUser = $cookies.get('user');
+			if(!$rootScope.currentUser){
+				$location.path('/log');
+				$rootScope.logged = false;
+			}
+			else{
+				$rootScope.logged = true;
+			}
+        });
+    }]);

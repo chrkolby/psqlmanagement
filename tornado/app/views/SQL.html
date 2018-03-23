@@ -1,0 +1,62 @@
+<div style="display:inline-block; width:100%;">
+	<div style="float:left; width:60%;">
+	<textarea ng-model="sql" style="width:100%; height:200px;"></textarea>
+	<button ng-if="columns" class="btn edit-btn" ng-click="go(sql)">Go</button>
+	</div>
+	<div style="float:right; width:35%;">
+	<table>
+		<tr ng-if="columns">
+			<th>Columns</th>
+		</tr>
+		<tr ng-repeat="column in columns">
+			<td>{{column}}</td>
+		</tr>
+	</table>
+	</div>
+</div>
+<div class="feedback">
+	<p ng-show="info.feedback == true">{{info.message}}</p>
+</div>
+
+	<div style="float:left;">
+		<ul  ng-if="pager.pages.length"  class="pagination" style="-webkit-padding-start: 0px;">
+			<li>
+				<a>Showing {{pager.startIndex+1}} to {{pager.endIndex+1}} of {{pager.totalItems}} entries</a>
+			</li>
+		</ul>
+	</div>
+	<div style="float:right; margin-bottom:5px;">
+		<ul ng-if="pager.pages.length" class="pagination">
+			<li ng-class="{disabled:pager.currentPage === 1}">
+				<a ng-click="setPage(1)">First</a>
+			</li>
+			<li ng-class="{disabled:pager.currentPage === 1}">
+				<a ng-click="setPage(pager.currentPage - 1)">Previous</a>
+			</li>
+			<li ng-repeat="page in pager.pages" ng-class="{active : pager.currentPage == page}">
+				<a ng-class="{active : pager.currentPage == page}" class="num" ng-click="setPage(page)">{{page}}</a>
+			</li>               
+			<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
+				<a class="disbabled" ng-click="setPage(pager.currentPage + 1)">Next</a>
+			</li>
+			<li ng-class="{disabled:pager.currentPage === pager.totalPages}">
+				<a ng-click="setPage(pager.totalPages)">Last</a>
+			</li>
+		</ul>
+	</div>
+	<table style="height:100%;">
+		<tr ng-if="items">
+			<th ng-model="header.value" ng-click="sort(value,header)" ng-repeat="value in currentKeys">
+				{{value}}
+				<b class="up" ng-if="value == currentKey && currentSort == 'asc'"></b>
+				<b class="down" ng-if="value == currentKey && currentSort == 'desc'"></b>
+			</th>
+		<tr>
+		<tr ng-repeat="table in items">
+			<td ng-repeat="(key, value) in table">
+				{{value}}
+			</td>
+			
+		</tr>
+		
+	</table>

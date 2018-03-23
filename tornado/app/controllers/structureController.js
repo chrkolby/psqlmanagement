@@ -1,4 +1,4 @@
-app.controller("structureController", function ($scope, $location, $http, PagerService, TableManage, SharedService) {
+app.controller("structureController", function ($rootScope, $scope, $location, $http, PagerService, TableManage, SharedService) {
 
 	console.log("structureController");
 
@@ -15,8 +15,17 @@ app.controller("structureController", function ($scope, $location, $http, PagerS
 	function _init_(){
 		var table_name = $scope.activeMenu;
 		if(table_name){
+			console.log("INIT");
 			SharedService.getData('Schema/' +  [table_name]).then(function(response){
 				var data = response.data;
+				
+				console.log(response);
+				
+				if(data.status == 500){
+					$location.path('/log');
+					$rootScope.logged = false;
+					return;
+				}
 				$scope.currentTableData = data.data;
 				
 				TableManage.setTableContent(data.data);
@@ -24,9 +33,6 @@ app.controller("structureController", function ($scope, $location, $http, PagerS
 				console.log(TableManage.getTableContent());
 				
 				$scope.currentKeys = Object.keys($scope.currentTableData[0]);
-				$scope.currentTableData.sort(function(a,b) {
-					return a['accid'] - b['accid'];
-				});
 				$scope.setPage = setPage;
 				setPage(1);
 			});

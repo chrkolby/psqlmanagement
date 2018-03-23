@@ -1,11 +1,26 @@
 <link rel='stylesheet' href="app/css/login.css">
 <div class="login-page">
-  <div class="form">
-     <form class="login-form" ng-submit="login(user)">
-      <input ng-model="user.username" type="text" placeholder="Username"/>
-	  <input ng-model="user.database" type="text" placeholder="Database"/>
-      <input ng-model="user.password" type="password" placeholder="password"/>
-      <button type="submit">Login</button>
-    </form>
-  </div>
+	<div ng-if="info.type == 'login'" class="form">
+	<h2>Login</h2>
+		<form class="login-form" ng-submit="login(user)">
+			<input ng-model="user.username" type="text" placeholder="Username"/>
+			<input ng-model="user.database" type="text" placeholder="Database"/>
+			<input ng-model="user.password" type="password" placeholder="Password"/>
+			<button type="submit">Login</button>
+		</form>
+		<button style="margin-top:5px;" ng-click="formregister()">Register</button>
+	</div>
+	<div ng-if="info.type == 'register'" class="form">
+	<h2>Register</h2>
+		<form class="login-form" ng-submit="register(newuser)">
+			<input required ng-model="newuser.username" type="text" placeholder="Username"/>
+			<input required ng-model="newuser.database" type="text" placeholder="Database"/>
+			<input required ng-model="newuser.password" type="password" placeholder="Password"/>
+			<input required ng-model="newuser.confpassword" type="password" placeholder="Confirm password"/>
+			<p ng-show="passwordMatch == false">No match!</p>
+			<p ng-show="info.status">{{info.message}}</p>
+			<button type="submit">Register</button>
+		</form>
+		<button style="margin-top:5px;" ng-click="formlogin()">Login</button>
+	</div>
 </div>

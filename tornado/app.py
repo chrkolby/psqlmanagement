@@ -9,50 +9,62 @@ import psycopg2
 import momoko
 import tornado
 import json
+import codecs
+import sys
+from Naked.toolshed.shell import muterun_js
+import math
+
 
 class BaseHandler(web.RequestHandler):
-    @property
-    def db(self):
-        return self.application.db
+
+	def db(self):
+		try:
+			return self.application.db
+		except:
+			pass
+			
+	def checkConnection(self):
+		try:
+			return self.application.db
+		except:
+			return "error"
+			
+		
+	
+		
 
 import handlers
 		
-class Delete(BaseHandler):
-	@gen.coroutine
-	def post(self):
-		data = tornado.escape.json_decode(self.request.body)
-	#	yield self.db.execute("DELETE from account where accid = '%d';" % data['id'])
-	#	yield self.db.execute("DELETE from account where accid = '%d';" % data['id'])
-		yield self.db.execute("DELETE from settings where accid = '%d';" % data['id'])
-		yield self.db.execute("DELETE from bases where accid = '%d';" % data['id'])
-		yield self.db.execute("DELETE from account where accid = '%d';" % data['id'])
-		#account = cursor.fetchone()
-		#print(account["accid"])
-		#id = data["id"]
-		#self.write(account)
-		
-class Manage(BaseHandler):
-	@gen.coroutine
-	def get(self):
-		cursor = yield self.db.execute("""SELECT table_name FROM information_schema.tables
-			WHERE table_schema = 'public'""")
-		all = cursor.fetchall();
-		self.write(json.dumps(all)) 
-		print(all)
 		
 class Export(BaseHandler):
 	@gen.coroutine
-	def post(self):
-		cursor = yield self.db.execute("SELECT * from account;")
-		account = cursor.fetchall()
-		with open('database.txt', 'w') as file:
-			file.write(json.dumps(account))
-		print(account)
+	def get(self, table):
+
+		cursor = yield self.db().execute("SELECT * from {0};".format(table))
+		all = cursor.fetchall()
+
+		with open('database.csv', 'w') as file:
+			file.write(json.dumps(all))
+
+		file_name = 'database.csv'
+		buf_size = 4096
+		self.set_header('Content-Type', 'application/octet-stream')
+		self.set_header('Content-Disposition', 'attachment; filename=' + file_name)
+		with open(file_name, 'r') as f:
+			while True:
+				data = f.read(buf_size)
+				if not data:
+					break
+				self.write(data)
+		self.finish()
+
 	
 class Login(web.RequestHandler):
 	@gen.coroutine
 	def post(self):
+	
 		data = tornado.escape.json_decode(self.request.body)
+		
 		ioloop = IOLoop.current()
 		self.connected = False
 		self.application.db = momoko.Pool(
@@ -62,18 +74,77 @@ class Login(web.RequestHandler):
 			ioloop=ioloop,
 			cursor_factory=psycopg2.extras.RealDictCursor,
 		)
-		#future = application.db.connect()
 		future = self.application.db.connect()
 		try:
 			yield self.application.db.execute("SELECT 1;")
 			self.connected = True
 		except:
 			self.connected = False
-		print(self.connected)
 		response = {"Connected": self.connected}
 		self.write(response)
+		
+class Register(web.RequestHandler):
+	@gen.coroutine
+	def post(self):
+	
+		data = tornado.escape.json_decode(self.request.body)
+		
+		ioloop = IOLoop.current()
+		self.connected = False
+		self.application.db = momoko.Pool(
+			dsn='dbname=postgres user=postgres password=kolbykolby '
+				'host=127.0.0.1 port=5432',
+			size=1,
+			ioloop=ioloop,
+			cursor_factory=psycopg2.extras.RealDictCursor,
+		)
+		future = self.application.db.connect()
+		
+		cursor = yield self.application.db.execute("""SELECT u.usename AS "username",
+			  u.usesysid AS "User ID",
+			  CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create
+			database' AS pg_catalog.text)
+				   WHEN u.usesuper THEN CAST('superuser' AS pg_catalog.text)
+				   WHEN u.usecreatedb THEN CAST('create database' AS
+			pg_catalog.text)
+				   ELSE CAST('' AS pg_catalog.text)
+			  END AS "Attributes"
+			FROM pg_catalog.pg_user u
+			ORDER BY 1;""")
+			
+		all = cursor.fetchall();
+		
+		for user in all:
+			if user['username'] == data['username']:
+				self.write("Invalid Username")
+				return
+		
+		cursor = yield self.application.db.execute("""SELECT datname FROM pg_database
+			WHERE datistemplate = false;""")
+			
+		all = cursor.fetchall();
+		
+		for db in all:
+			if db['datname'] == data['database']:
+				self.write("Invalid Database name")
+				return
+		
+		try:
+			cursor = yield self.application.db.execute("""CREATE USER {0} WITH PASSWORD '{1}';""".format(data['username'],data['password']))
+		except psycopg2.Error as e:
+			self.write(e.diag.message_primary)
+			return
+			
+		try:
+			cursor = yield self.application.db.execute("""CREATE DATABASE {0} OWNER {1};""".format(data['database'],data['username']))
+		except psycopg2.Error as e:
+			self.write(e.diag.message_primary)
+			return
+			
+		self.write("User and database created")
+		
 
-
+		
 if __name__ == '__main__':
 	parse_command_line()
 	
@@ -88,24 +159,17 @@ if __name__ == '__main__':
 	h = [(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	h.extend(handlers.default_handlers)	
 
-	"""application = web.Application(h, **settings)"""
-
-	
 	application = web.Application([
 		(r'/accounts/getaccs', handlers.accountHandler.AccountsHandler),
 		(r'/API/Schema', handlers.manageHandler.SchemaHandler),
 		(r'/API/Schema/(.*)', handlers.manageHandler.SchemaHandler),
 		(r'/API/Table/(.*)', handlers.manageHandler.TableHandler),
+		(r'/API/Export/(.*)',Export),
 		(r'/Login',Login),
+		(r'/Register',Register),
 		(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	, **settings)
 
-	"""application = web.Application([
-		(r'/', TutorialHandler)
-		#(r'/Delete', Delete),
-		#(r'/Export', Export),
-		#(r'/Manage', Manage)
-	], **settings)"""
 	
 	ioloop = IOLoop.instance()
 

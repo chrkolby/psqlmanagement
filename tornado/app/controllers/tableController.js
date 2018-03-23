@@ -1,21 +1,23 @@
-app.controller("tableController", function ($scope, $location, SharedService, TableManage) {
+app.controller("tableController", function ($rootScope, $scope, $location, $cookies, SharedService, TableManage) {
 	console.log('tableController');
 	$scope.manage = false;
-	$scope.topmenu = ['Content', 'Structure', 'SQL', 'Search', 'Export', 'Import'];
-	console.log($scope.search);
-	//$scope.activeMenu = TableManage.get();
+	$scope.topmenu = ['Content', 'Structure', 'SQL', 'Insert', 'Export', 'Import'];
+
+	console.log($scope.activeMenuTop);
 	
-	/*$scope.$watch(function() {
-		return TableManage.get()
-	}, function(newValue, oldValue) {
-		$scope.activeMenu = newValue;
-	});*/
-	
-	//$scope.activeMenu = TableManage.currentTable;
-	console.log($scope.activeMenu);
+	$scope.logout = function(){
+		$cookies.put('user','');
+		$location.path('/log');
+	}
  
-	SharedService.getData('Schema?token=onetwo').then(function(response){
+	SharedService.getData('Schema').then(function(response){
 		var data = response.data;
-		$scope.data = (data.data);
+		if(data.status == 500){
+			$location.path('/log');
+			$rootScope.logged = false;
+		}
+		else{
+			$scope.data = (data.data);
+		}
 	});
 });

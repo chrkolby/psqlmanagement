@@ -20,8 +20,9 @@ app.service('SharedService', ['$resource', '$q', 'commonUtilities','$http', func
         },
         getData: function (methodUrl, args) {
 			
+			console.log(methodUrl);
             var formattedUrl = commonUtilities.stringFormat(methodUrl, args);
-			
+			console.log(formattedUrl);
 			var deferred = $q.defer();
 			$http.get(base + formattedUrl)
 				.then(function(data) {
@@ -51,26 +52,22 @@ app.service('SharedService', ['$resource', '$q', 'commonUtilities','$http', func
 			return deferred.promise;
 		
         },
-        deleteData: function (methodUrl, args, data) {
+        deleteData: function (methodUrl, args) {
 
-            var formattedUrl = commonUtilities.stringFormat(methodUrl, args);
-
+            var formattedUrl = commonUtilities.stringFormat(methodUrl);
             var deferred = $q.defer();
-			$http.delete(base + methodUrl + objectId)
+			$http.delete(base + formattedUrl, {data: args})
 			  .success(function(data) {
 				deferred.resolve(data);
 			  })
 			  .error(function(data, status, headers, config) {
-				console.log(data);
-				console.log(status);
-				console.log(config);
 				deferred.reject('There was an error deleting object');
 			  });
 			return deferred.promise;
         },
-        addData: function (methodUrl, args, data) {
+        addData: function (methodUrl, data) {
 
-            var formattedUrl = commonUtilities.stringFormat(methodUrl, args);
+            var formattedUrl = commonUtilities.stringFormat(methodUrl);
 
             var deferred = $q.defer();
 			$http.post(base + formattedUrl, data)
