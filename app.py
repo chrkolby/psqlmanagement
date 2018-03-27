@@ -12,7 +12,6 @@ import tornado
 import json
 import codecs
 import sys
-from Naked.toolshed.shell import muterun_js
 import math
 import random
 import string
