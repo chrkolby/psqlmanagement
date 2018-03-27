@@ -2,7 +2,7 @@
 
 app.service('SharedService', ['$resource', '$q', 'commonUtilities','$http', function ($resource, $q, commonUtilities, $http) {
 
-    var base = 'http://localhost:8888/API/';
+    var base = 'http://tornado-tornado.7e14.starter-us-west-2.openshiftapps.com/API/';
 
     return {
         getListData: function (methodUrl, args) {
