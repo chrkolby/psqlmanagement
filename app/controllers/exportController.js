@@ -5,7 +5,7 @@ app.controller("exportController", function ($rootScope, $scope, $location, $htt
 	$scope.export = function(){
 		var table_name = $scope.activeMenu;
 		if(table_name){
-			SharedService.getData('Export/' + table_name).then(function(response){
+			SharedService.getData('Export/' + table_name + '&token=' + $cookies.get('session')).then(function(response){
 				console.log(response);
 			});
 		}

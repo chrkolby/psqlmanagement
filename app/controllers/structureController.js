@@ -16,7 +16,7 @@ app.controller("structureController", function ($rootScope, $scope, $location, $
 		var table_name = $scope.activeMenu;
 		if(table_name){
 			console.log("INIT");
-			SharedService.getData('Schema/' +  [table_name]).then(function(response){
+			SharedService.getData('Schema/' +  [table_name] + '&token=' + $cookies.get('session')).then(function(response){
 				var data = response.data;
 				
 				console.log(response);

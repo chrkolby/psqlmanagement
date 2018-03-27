@@ -20,7 +20,7 @@ app.controller("newtableController", function ($rootScope, $scope, $location, $h
 			}
 			console.log(input);
 			
-			SharedService.addData('Schema', input).then(function(response){
+			SharedService.addData('Schema' + '&token=' + $cookies.get('session'), input).then(function(response){
 				if(response.status == 500){
 					$location.path('/log');
 					$rootScope.logged = false;
