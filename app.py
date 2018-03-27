@@ -96,7 +96,7 @@ class Login(web.RequestHandler):
 		
 		connection = momoko.Pool(
 			dsn='dbname={0} user={1} password={2} '
-				'host=0.0.0.0 port=5432'.format(data['database'],data['username'],data['password']),
+				'host=127.0.0.1 port=5432'.format(data['database'],data['username'],data['password']),
 			size=1,
 			ioloop=ioloop,
 			cursor_factory=psycopg2.extras.RealDictCursor,
