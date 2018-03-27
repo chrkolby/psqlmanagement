@@ -1,4 +1,4 @@
-app.controller("newtableController", function ($rootScope, $scope, $location, $http, PagerService, TableManage, SharedService) {
+app.controller("newtableController", function ($rootScope, $scope, $cookies, $location, $http, PagerService, TableManage, SharedService) {
 	
 	$scope.data = {};
 	$scope.rows = [1,2,3,4,5];

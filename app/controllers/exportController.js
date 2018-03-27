@@ -1,4 +1,4 @@
-app.controller("exportController", function ($rootScope, $scope, $location, $http, PagerService, SharedService, TableManage) {
+app.controller("exportController", function ($rootScope, $scope, $cookies, $location, $http, PagerService, SharedService, TableManage) {
 
 	$scope.insertData = {};
 	

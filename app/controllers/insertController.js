@@ -1,4 +1,4 @@
-app.controller("insertController", function ($rootScope, $scope, $location, $http, PagerService, SharedService, TableManage) {
+app.controller("insertController", function ($rootScope, $scope, $cookies, $location, $http, PagerService, SharedService, TableManage) {
 
 	init();
 	

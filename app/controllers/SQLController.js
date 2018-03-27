@@ -1,4 +1,4 @@
-app.controller("SQLController", function ($rootScope, $scope, $location, $http, PagerService, TableManage, SharedService) {
+app.controller("SQLController", function ($rootScope, $scope, $cookies, $location, $http, PagerService, TableManage, SharedService) {
 	
 	init();
 	$scope.pager = {};

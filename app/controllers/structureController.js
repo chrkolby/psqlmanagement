@@ -1,4 +1,4 @@
-app.controller("structureController", function ($rootScope, $scope, $location, $http, PagerService, TableManage, SharedService) {
+app.controller("structureController", function ($rootScope, $scope, $cookies, $location, $http, PagerService, TableManage, SharedService) {
 
 	console.log("structureController");
 
