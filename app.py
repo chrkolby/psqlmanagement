@@ -211,9 +211,6 @@ if __name__ == '__main__':
 	
 	# web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	ioloop = IOLoop.instance()
-
-	ip   = os.environ['OPENSHIFT_PYTHON_IP']
-	port = int(os.environ['OPENSHIFT_PYTHON_PORT'])
 	
 	http_server = HTTPServer(application)
 	http_server.listen(8080, '0.0.0.0')
