@@ -216,6 +216,6 @@ if __name__ == '__main__':
 	port = int(os.environ['OPENSHIFT_PYTHON_PORT'])
 	
 	http_server = HTTPServer(application)
-	http_server.listen(port, ip)
+	http_server.listen(8080, '0.0.0.0')
 	ioloop.start()
 	
