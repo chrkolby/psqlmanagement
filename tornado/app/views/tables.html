@@ -1,0 +1,16 @@
+<div ng-controller="tableController">
+	<div class="topnav">
+		<div class="content">
+			<ul>
+				<li><a ng-click="logout()" class ="fa fa-home"></a></li>
+				<li ng-repeat="item in topmenu">
+					<a ng-click="setActive(item)" href="#{{item}}" ng-class="{active : activeMenuTop === item}">{{item}}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="sidenav">
+		<a ng-class="{active : activeMenu === value['table_name']}" ng-click="getTable($event, value['table_name'])" ng-repeat="value in data | orderBy : 'table_name'">{{value['table_name']}}</a>
+		<a ng-class="{active : activeMenu === 'newtable'}" ng-click="newTable()" href="#newtable">New Table</a>
+	</div>
+</div>
