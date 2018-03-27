@@ -3,17 +3,12 @@ app.controller("SQLController", function ($rootScope, $scope, $location, $http, 
 	init();
 	$scope.pager = {};
 	$scope.activeMenu = TableManage.getTable();
-	if($scope.activeMenu == 'newtable'){
-		$scope.activeMenu = "";
-	}
+
 	$scope.info = {"feedback" : false};
 	
 	$scope.$on('TEST', function(event, data) {
         $scope.activeMenu = TableManage.getTable();
-		if($scope.activeMenu == 'newtable'){
-			$scope.activeMenu = "";
-		}
-		console.log(Date.now());
+
 		init();
 	});
 	
@@ -24,7 +19,7 @@ app.controller("SQLController", function ($rootScope, $scope, $location, $http, 
 			'data':sql
 		};
 		if(sql){
-			SharedService.addData('Table/' +  [table_name], data).then(function(response){
+			SharedService.addData('Table/' +  [table_name] + '?token=' + $rootScope.currentUser, data).then(function(response){
 				console.log(response);
 				if(response.status == 500){
 					$location.path('/log');
@@ -58,7 +53,7 @@ app.controller("SQLController", function ($rootScope, $scope, $location, $http, 
 	function init(){
 		var table_name = $scope.activeMenu;
 		if(table_name){
-			SharedService.getData('Schema/' +  [table_name]).then(function(response){
+			SharedService.getData('Schema/' +  [table_name] + '?token=' + $rootScope.currentUser).then(function(response){
 				var data = response.data;
 				console.log(data);
 				if(data.status == 500){

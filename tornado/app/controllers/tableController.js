@@ -6,11 +6,14 @@ app.controller("tableController", function ($rootScope, $scope, $location, $cook
 	console.log($scope.activeMenuTop);
 	
 	$scope.logout = function(){
-		$cookies.put('user','');
+		$rootScope.logged = false;
+		$cookies.put('session','');
 		$location.path('/log');
 	}
+	
+	
  
-	SharedService.getData('Schema').then(function(response){
+	SharedService.getData('Schema?token=' + $cookies.get('session')).then(function(response){
 		var data = response.data;
 		if(data.status == 500){
 			$location.path('/log');

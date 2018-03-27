@@ -18,18 +18,20 @@ class SchemaHandler(app.BaseHandler):
 
 	@gen.coroutine
 	def get(self, table_name=None):
+	
+		token = self.get_argument('token', "");
 		
-		if(self.checkConnection() == "error"):
+		if(self.checkConnection(token) == "error"):
 			returnval = {'status': 500, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
 		
 		if(table_name):
-			cursor = yield self.db().execute("""select column_name, data_type, character_maximum_length, is_nullable
+			cursor = yield self.db(token).execute("""select column_name, data_type, character_maximum_length, is_nullable
 			from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table_name))
 
 		else:
-			cursor = yield self.db().execute("""SELECT table_name FROM information_schema.tables
+			cursor = yield self.db(token).execute("""SELECT table_name FROM information_schema.tables
 			WHERE table_schema = 'public'""")
 			
 		all = cursor.fetchall()
@@ -39,7 +41,10 @@ class SchemaHandler(app.BaseHandler):
 		
 	@gen.coroutine
 	def post(self):
-		if(self.checkConnection() == "error"):
+	
+		token = self.get_argument('token', "");
+	
+		if(self.checkConnection(token) == "error"):
 			returnval = {'status': 500, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
@@ -61,7 +66,7 @@ class SchemaHandler(app.BaseHandler):
 		sql += ");"
 
 		try:
-			cursor = yield self.db().execute(sql)
+			cursor = yield self.db(token).execute(sql)
 			returnval = {
 				'status': 200,
 				'message': 'Table created'
@@ -84,7 +89,9 @@ class TableHandler(app.BaseHandler):
 	def get(self, table):
 		search = self.get_argument('search', "");
 		
-		if(self.checkConnection() == "error"):
+		token = self.get_argument('token', "");
+		
+		if(self.checkConnection(token) == "error"):
 			returnval = {'status': 500, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
@@ -93,7 +100,7 @@ class TableHandler(app.BaseHandler):
 			search = ''
 
 		try:
-			cursor = yield self.db().execute("""select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
+			cursor = yield self.db(token).execute("""select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name = '{0}'""".format(table))
 			
 			
 			all = cursor.fetchall();
@@ -105,7 +112,7 @@ class TableHandler(app.BaseHandler):
 					sql = sql  + table['column_name'] + " LIKE '%{0}%' OR ".format(search);
 
 			sql = sql[:-3]
-			cursor = yield self.db().execute(sql)
+			cursor = yield self.db(token).execute(sql)
 			
 			all = cursor.fetchall()
 			data = {
@@ -123,8 +130,10 @@ class TableHandler(app.BaseHandler):
 	@gen.coroutine
 	def post(self, table):
 		postData = tornado.escape.json_decode(self.request.body)
+		
+		token = self.get_argument('token', "");
 
-		if(self.checkConnection() == "error"):
+		if(self.checkConnection(token) == "error"):
 			returnval = {'status': 500, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
@@ -161,7 +170,7 @@ class TableHandler(app.BaseHandler):
 		
 		
 		try:
-			cursor = yield self.db().execute(postData['data'])
+			cursor = yield self.db(token).execute(postData['data'])
 			
 			try:
 				all = cursor.fetchall();
@@ -182,7 +191,9 @@ class TableHandler(app.BaseHandler):
 	@gen.coroutine
 	def delete(self, table):
 	
-		if(self.checkConnection() == "error"):
+		token = self.get_argument('token', "");
+	
+		if(self.checkConnection(token) == "error"):
 			returnval = {'status': 500, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
@@ -193,7 +204,7 @@ class TableHandler(app.BaseHandler):
 		
 		for item in data:
 			try:
-				self.deleteFkeys(table, item)
+				self.deleteFkeys(table, item, token)
 				
 			except:
 				error.append(item)
@@ -216,20 +227,20 @@ class TableHandler(app.BaseHandler):
 		
 			
 	@gen.coroutine
-	def deleteFkeys(self, table, data):
-		fkeys = yield self.getFkeys(table)
+	def deleteFkeys(self, table, data, token):
+		fkeys = yield self.getFkeys(table, token)
 		
 		for ftable in fkeys:
 			ftableName = ftable['table']
 			for column in ftable['col']:
 				index = data[column]
 				
-				newData = yield self.getItem(ftableName, column, index)
+				newData = yield self.getItem(ftableName, column, index, token)
 				
 				for item in newData:
-					self.deleteFkeys(ftableName, item)
+					self.deleteFkeys(ftableName, item, token)
 				
-				cursor = yield self.db().execute("""delete from {0} where {1} = '{2}'""".format(ftableName, column, index));
+				cursor = yield self.db(token).execute("""delete from {0} where {1} = '{2}'""".format(ftableName, column, index));
 				
 		sql = "DELETE from %s where " % table
 				
@@ -243,18 +254,18 @@ class TableHandler(app.BaseHandler):
 			if i != len(data)-1:
 				sql = sql + " AND "
 				
-		cursor = yield self.db().execute(sql);
+		cursor = yield self.db(token).execute(sql);
 				
 	@gen.coroutine
-	def getItem(self, table, col, index):
-		cursor = yield self.db().execute("""select * from {0} where {1} = '{2}'""".format(table, col, index));
+	def getItem(self, table, col, index, token):
+		cursor = yield self.db(token).execute("""select * from {0} where {1} = '{2}'""".format(table, col, index));
 		all = cursor.fetchall();
 		return all;
 	
 	@gen.coroutine
-	def getFkeys(self, table):
+	def getFkeys(self, table, token):
 	
-		cursor = yield self.db().execute("""select 
+		cursor = yield self.db(token).execute("""select 
 						  (select r.relname from pg_class r where r.oid = c.conrelid) as table, 
 						  (select array_agg(attname) from pg_attribute 
 						   where attrelid = c.conrelid and ARRAY[attnum] <@ c.conkey) as col, 

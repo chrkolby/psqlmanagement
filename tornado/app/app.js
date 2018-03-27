@@ -131,8 +131,10 @@ app.controller("mainController", function ($scope, $location, $http, $cookies, T
 			url: 'Login',
 			data: user
 		}).then(function successCallback(response) {
-				if(response.data['Connected']){
-					$cookies.put('user', JSON.stringify(user));
+				
+				if(response.data['status'] = 200){
+					console.log(response);
+					$cookies.put('session', response.data['data']['token']);
 					$location.path("/");
 				}
 			}, function errorCallback(response) {
@@ -145,7 +147,8 @@ app.run(['$rootScope', '$location', '$cookies', '$http',
     function ($rootScope, $location, $cookies, $http) {
  
         $rootScope.$on('$locationChangeStart', function (event, next, current) {
-			$rootScope.currentUser = $cookies.get('user');
+			$rootScope.currentUser = $cookies.get('session');
+			console.log($rootScope.currentUser);
 			if(!$rootScope.currentUser){
 				$location.path('/log');
 				$rootScope.logged = false;

@@ -1,4 +1,4 @@
-app.controller("contentController", function ($rootScope, $scope, $location, $http, PagerService, TableManage, SharedService) {
+app.controller("contentController", function ($rootScope, $cookies, $scope, $location, $http, PagerService, TableManage, SharedService) {
 
 	console.log("contentController");
 
@@ -13,7 +13,7 @@ app.controller("contentController", function ($rootScope, $scope, $location, $ht
 	
 	$scope.SearchResults = function (SearchText) {
 		var table_name = TableManage.getTable();
-		SharedService.getData('Table/' +  [table_name] + '?search=' + SearchText).then(function(response){
+		SharedService.getData('Table/' +  [table_name] + '?search=' + SearchText + '&token=' + $cookies.get('session')).then(function(response){
 			var data = response.data;
 			if(data.status == 500){
 				$location.path('/log');
@@ -35,7 +35,7 @@ app.controller("contentController", function ($rootScope, $scope, $location, $ht
 	function init(){
 		var table_name = $scope.activeMenu;
 		if(table_name){
-			SharedService.getData('Table/' +  [table_name]).then(function(response){
+			SharedService.getData('Table/' +  [table_name] + '?token=' + $cookies.get("session")).then(function(response){
 				var data = response.data;
 				$scope.currentTableData = data.data;
 				if(data.status == 500){
@@ -74,7 +74,7 @@ app.controller("contentController", function ($rootScope, $scope, $location, $ht
 	$scope.delete = function(){
 		var items = selected();
 		var table_name = $scope.activeMenu;
-		SharedService.deleteData('Table/' +  [table_name],items).then(function(response){
+		SharedService.deleteData('Table/' +  [table_name] + '?token=' + $cookies.get("session"),items).then(function(response){
 			if(response.status == 500){
 				$location.path('/log');
 				$rootScope.logged = false;
@@ -128,18 +128,20 @@ app.controller("contentController", function ($rootScope, $scope, $location, $ht
             return;
         }
         $scope.pager = PagerService.GetPager($scope.currentTableData.length, page);
-		if(!sort){
-			var firstKey = Object.keys($scope.currentTableData[0])[0];
-			$scope.currentKey = firstKey;
+		if($scope.currentTableData.length > 0){
+			if(!sort){
+				var firstKey = Object.keys($scope.currentTableData[0])[0];
+				$scope.currentKey = firstKey;
+			}
+			if($scope.currentSort == "asc"){
+				$scope.currentTableData.sort(compareAsc);
+			}
+			
+			else{
+				$scope.currentTableData.sort(compareDesc);
+			}
 		}
-		if($scope.currentSort == "asc"){
-			$scope.currentTableData.sort(compareAsc);
-		}
-		
-		else{
-			$scope.currentTableData.sort(compareDesc);
-		}
-		
+			
         $scope.items = $scope.currentTableData.slice($scope.pager.startIndex, $scope.pager.endIndex + 1);
 
     }

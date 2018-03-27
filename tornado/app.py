@@ -3,6 +3,7 @@ from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from tornado.options import parse_command_line
 from tornado import web
+import tornado.wsgi
 import os
 
 import psycopg2
@@ -13,19 +14,22 @@ import codecs
 import sys
 from Naked.toolshed.shell import muterun_js
 import math
+import random
+import string
 
 
 class BaseHandler(web.RequestHandler):
 
-	def db(self):
+	def db(self, token):
 		try:
-			return self.application.db
+			return self.application.db[token]['db']
 		except:
 			pass
 			
-	def checkConnection(self):
+	def checkConnection(self, token):
+		print(self.application.db)
 		try:
-			return self.application.db
+			return self.application.db[token]['db']
 		except:
 			return "error"
 			
@@ -57,30 +61,61 @@ class Export(BaseHandler):
 					break
 				self.write(data)
 		self.finish()
+		
+class Home(BaseHandler):
+	def get(self):
+		self.render("newpage.html")
+		
+class PSQL(BaseHandler):
+	
+	def get(self):
+		 self.render("index.html", title="My title")
+		 
+"""class PSQL(BaseHandler):
+
+	def get(self):
+		print("PATH")
+		self.render("index.html")"""
 
 	
 class Login(web.RequestHandler):
 	@gen.coroutine
 	def post(self):
 	
+		token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
+	
 		data = tornado.escape.json_decode(self.request.body)
+
+		for value in self.application.db:
+
+			if self.application.db[value]['user'] == data['username']:
+				del self.application.db[value]
+				break
 		
 		ioloop = IOLoop.current()
 		self.connected = False
-		self.application.db = momoko.Pool(
+		
+		connection = momoko.Pool(
 			dsn='dbname={0} user={1} password={2} '
 				'host=127.0.0.1 port=5432'.format(data['database'],data['username'],data['password']),
 			size=1,
 			ioloop=ioloop,
 			cursor_factory=psycopg2.extras.RealDictCursor,
 		)
-		future = self.application.db.connect()
+		
+		future = connection.connect()
+		
 		try:
-			yield self.application.db.execute("SELECT 1;")
-			self.connected = True
+			yield connection.execute("SELECT 1;")
+			self.application.db[token] = {}
+			self.application.db[token]['user'] = data['username']
+			self.application.db[token]['token'] = token
+			self.application.db[token]['db'] = connection
+			response = {"status":200, "data":{"connected": True, 'token':token}, "message": None}
 		except:
 			self.connected = False
-		response = {"Connected": self.connected}
+			response = {"status":500, "data":{"connected": False}, "message": "Unable to connect to database"}
+		
 		self.write(response)
 		
 class Register(web.RequestHandler):
@@ -92,7 +127,7 @@ class Register(web.RequestHandler):
 		ioloop = IOLoop.current()
 		self.connected = False
 		self.application.db = momoko.Pool(
-			dsn='dbname=postgres user=postgres password=password '
+			dsn='dbname=postgres user=postgres password=kolbykolby '
 				'host=127.0.0.1 port=5432',
 			size=1,
 			ioloop=ioloop,
@@ -150,16 +185,17 @@ if __name__ == '__main__':
 	
 	settings = {
 	"debug": True,
-	"template_path": "C:\\Users\\Computer\\Documents\\python\\tornado\\app",
-	"static_path": "C:\\Users\\Computer\\Documents\\python\\tornado\\app"
+	"template_path": "templates",
+	"static_path": ""
 	}
 	
 	root = os.path.dirname(__file__)
+	print(root)
 	
-	h = [(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
-	h.extend(handlers.default_handlers)	
+	#h = [(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
+	#h.extend(handlers.default_handlers)	
 
-	application = web.Application([
+	application = tornado.wsgi.WSGIApplication([
 		(r'/accounts/getaccs', handlers.accountHandler.AccountsHandler),
 		(r'/API/Schema', handlers.manageHandler.SchemaHandler),
 		(r'/API/Schema/(.*)', handlers.manageHandler.SchemaHandler),
@@ -167,10 +203,14 @@ if __name__ == '__main__':
 		(r'/API/Export/(.*)',Export),
 		(r'/Login',Login),
 		(r'/Register',Register),
+		(r'/db',PSQL),
+		(r'/',Home),
 		(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	, **settings)
 
+	application.db = {}
 	
+	# web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	ioloop = IOLoop.instance()
 
 	http_server = HTTPServer(application)
