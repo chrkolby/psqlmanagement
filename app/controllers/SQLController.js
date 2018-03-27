@@ -19,7 +19,7 @@ app.controller("SQLController", function ($rootScope, $scope, $cookies, $locatio
 			'data':sql
 		};
 		if(sql){
-			SharedService.addData('Table/' +  [table_name] + '&token=' + $cookies.get('session'), data).then(function(response){
+			SharedService.addData('Table/' +  [table_name] + '?token=' + $cookies.get('session'), data).then(function(response){
 				console.log(response);
 				if(response.status == 500){
 					$location.path('/log');
@@ -53,7 +53,7 @@ app.controller("SQLController", function ($rootScope, $scope, $cookies, $locatio
 	function init(){
 		var table_name = $scope.activeMenu;
 		if(table_name){
-			SharedService.getData('Schema/' +  [table_name] + '&token=' + $cookies.get('session')).then(function(response){
+			SharedService.getData('Schema/' +  [table_name] + '?token=' + $cookies.get('session')).then(function(response){
 				var data = response.data;
 				console.log(data);
 				if(data.status == 500){
