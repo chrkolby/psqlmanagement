@@ -68,7 +68,12 @@ class Home(BaseHandler):
 class PSQL(BaseHandler):
 	
 	def get(self):
-		 self.render("index.html", title="My title")
+	
+		baseurl = os.getenv('API')
+		
+		data = {'api': baseurl};
+	
+		self.render("index.html", title="My title", items=data)
 		 
 """class PSQL(BaseHandler):
 
@@ -127,7 +132,7 @@ class Register(web.RequestHandler):
 		self.connected = False
 		self.application.db = momoko.Pool(
 			dsn='dbname=postgres user=postgres password=kolbykolby '
-				'host=127.0.0.1 port=5432',
+				'host={0} port=5432'.format(os.getenv('POSTGRESQL_SERVICE_HOST')),
 			size=1,
 			ioloop=ioloop,
 			cursor_factory=psycopg2.extras.RealDictCursor,
