@@ -22,7 +22,8 @@
 		<script src="app/controllers/exportController.js"></script>
 	</head>
 	<body>
-	<div ng-app="myApp">
+	
+	<div ng-init="API = '{{items['api']}}'" ng-app="myApp">
 		<div ng-controller="mainController">
 			<div ng-if="logged" ng-include src="'app/views/tables.html'"></div>
 			<div ng-if="logged" style="padding-left:150px; padding-top:50px; margin:10px;">
