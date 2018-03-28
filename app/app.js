@@ -63,7 +63,11 @@ app.factory("TableManage", function(){
 
 
 
-app.controller("mainController", function ($scope, $location, $http, $cookies, TableManage) {
+app.controller("mainController", function ($scope, $location, $http, $cookies, TableManage, SharedService) {
+	console.log($scope.API);
+	
+	SharedService.setBaseUrl($scope.API);
+	
 	console.log('mainController');
 	$scope.manage = false;
 	$scope.user = {};

@@ -2,9 +2,13 @@
 
 app.service('SharedService', ['$resource', '$q', 'commonUtilities','$http', function ($resource, $q, commonUtilities, $http) {
 
-    var base = 'http://tornado-tornado.7e14.starter-us-west-2.openshiftapps.com/API/';
-
+    var base = '';
+	
     return {
+		setBaseUrl: function(url){
+			base = url + "/";
+		},
+		
         getListData: function (methodUrl, args) {
             var formattedUrl = commonUtilities.stringFormat(methodUrl, args);
 
