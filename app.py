@@ -130,16 +130,16 @@ class Register(web.RequestHandler):
 		
 		ioloop = IOLoop.current()
 		self.connected = False
-		self.application.db = momoko.Pool(
+		admin = momoko.Pool(
 			dsn='dbname=postgres user=postgres password=kolbykolby '
 				'host={0} port=5432'.format(os.getenv('POSTGRESQL_SERVICE_HOST')),
 			size=1,
 			ioloop=ioloop,
 			cursor_factory=psycopg2.extras.RealDictCursor,
 		)
-		future = self.application.db.connect()
+		future = admin.connect()
 		
-		cursor = yield self.application.db.execute("""SELECT u.usename AS "username",
+		cursor = yield admin.execute("""SELECT u.usename AS "username",
 			  u.usesysid AS "User ID",
 			  CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create
 			database' AS pg_catalog.text)
@@ -158,7 +158,7 @@ class Register(web.RequestHandler):
 				self.write("Invalid Username")
 				return
 		
-		cursor = yield self.application.db.execute("""SELECT datname FROM pg_database
+		cursor = yield admin.execute("""SELECT datname FROM pg_database
 			WHERE datistemplate = false;""")
 			
 		all = cursor.fetchall();
@@ -169,13 +169,13 @@ class Register(web.RequestHandler):
 				return
 		
 		try:
-			cursor = yield self.application.db.execute("""CREATE USER {0} WITH PASSWORD '{1}';""".format(data['username'],data['password']))
+			cursor = yield admin.execute("""CREATE USER {0} WITH PASSWORD '{1}';""".format(data['username'],data['password']))
 		except psycopg2.Error as e:
 			self.write(e.diag.message_primary)
 			return
 			
 		try:
-			cursor = yield self.application.db.execute("""CREATE DATABASE {0} OWNER {1};""".format(data['database'],data['username']))
+			cursor = yield admin.execute("""CREATE DATABASE {0} OWNER {1};""".format(data['database'],data['username']))
 		except psycopg2.Error as e:
 			self.write(e.diag.message_primary)
 			return
