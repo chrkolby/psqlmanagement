@@ -1,11 +1,55 @@
+<link rel='stylesheet' href="app/css/main.css">
+<script src="../app/lib/vivus.js"></script>
+<script src="../app/lib/angularjs1.5.6.js"></script>
+<script src="app/mainApp.js"></script>
 <style>
-.bg{
-    position: relative;
-    background-image: url("app/lib/bg.png");
-    background-repeat:no-repeat;
-	background-size:cover;
-}
-</style>
 
-<body class="bg">
+.content li a { 
+	font-size: 18px;
+	}
+</style>
+<body>
+<div ng-app="mainApp" style="height:65px" class="topnav">
+		<div id="content" class="content">
+			<ul>
+				<li><div ng-include="'app/views/logo.html'"></div></li>
+			<li style="display:table;"><b style="display: table-cell;
+			vertical-align: middle;
+			color: rgb(255, 255, 255);
+			font-size: 18px;">ChrKolby</b></li>
+			<li style="float:right; display:table"><a style="display: table-cell;
+			vertical-align: middle;">Login</a></li>
+			<li style="float:right; display:table"><a style="display: table-cell;
+			vertical-align: middle;">About</a></li>
+			<li style="float:right; display:table"><a style="display: table-cell;
+			vertical-align: middle;">API</a></li>
+			<li style="float:right; display:table"><a style="display: table-cell;
+			vertical-align: middle;">Test</a></li>
+			</ul>
+		</div>
+	</div>
+	<canvas id="myCanvas" style="height: calc(100% - 65px); width:100%; margin-top:65px;"></canvas>
+	
+	<script>
+	
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext('2d');
+	x = 50;
+	y = 50;
+	size = 4;
+	setInterval(function(){
+	
+		ctx.beginPath();
+		ctx.moveTo(x - (size / 2), y - (size / 2));
+		ctx.lineTo(x + (size / 2), y - (size / 2));
+		ctx.lineTo(x + (size / 2), y + (size / 2));
+		ctx.lineTo(x - (size / 2), y + (size / 2));
+		ctx.closePath();
+		ctx.fill();
+		x++;
+		}
+	, 50);
+	
+	</script>
+	
 </body>
