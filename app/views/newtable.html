@@ -1,4 +1,4 @@
-<div style="margin:10px 0px 10px 0px;"><b>Table Name: </b><input ng-model="data.tablename"></input></div>
+<div style="margin:10px 0px 10px 0px;"><b>Table Name: </b><input required ng-model="data.tablename"></input></div>
 
 <table>
 	<tr>
@@ -15,7 +15,7 @@
 		<td class="pointer" style="text-align:center;" ng-click="addrow()" colspan="3">Add Row</td>
 	</tr>
 </table>
-<button class="btn insert-btn" ng-click="go(data)">Go</button>
+<button class="btn edit-btn" ng-click="go(data)">Go</button>
 
 <div class="feedback">
 	<p ng-show="info.feedback == true">{{info.message}}</p>

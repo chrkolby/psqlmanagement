@@ -10,18 +10,27 @@ app.controller("newtableController", function ($rootScope, $scope, $cookies, $lo
 	
 	$scope.go = function(input){
 		console.log(input);
+		
+		var columnArr = [];
+		
 		if(input['tablename']){
 			for(key in input){
 				if(key != "tablename"){
 					if(!input[key].length){
 						input[key].length = "";
 					}
+					columnArr.push(input[key]);
 				}
 			}
-			console.log(input);
 			
-			SharedService.addData('Schema' + '?token=' + $cookies.get('session'), input).then(function(response){
-				if(response.status == 500){
+			var data = {
+				"tablename": input['tablename'],
+				"columns": columnArr
+			}
+			
+
+			SharedService.addData('Schema' + '?token=' + $cookies.get('session'), data).then(function(response){
+				if(response.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;

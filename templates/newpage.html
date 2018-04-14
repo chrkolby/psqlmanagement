@@ -22,7 +22,7 @@
 			<li style="float:right; display:table"><a style="display: table-cell;
 			vertical-align: middle;">About</a></li>
 			<li style="float:right; display:table"><a style="display: table-cell;
-			vertical-align: middle;">API</a></li>
+			vertical-align: middle;" href="/API">API</a></li>
 			<li style="float:right; display:table"><a style="display: table-cell;
 			vertical-align: middle;">Test</a></li>
 			</ul>
@@ -30,26 +30,5 @@
 	</div>
 	<canvas id="myCanvas" style="height: calc(100% - 65px); width:100%; margin-top:65px;"></canvas>
 	
-	<script>
-	
-	var canvas = document.getElementById("myCanvas");
-	var ctx = canvas.getContext('2d');
-	x = 50;
-	y = 50;
-	size = 4;
-	setInterval(function(){
-	
-		ctx.beginPath();
-		ctx.moveTo(x - (size / 2), y - (size / 2));
-		ctx.lineTo(x + (size / 2), y - (size / 2));
-		ctx.lineTo(x + (size / 2), y + (size / 2));
-		ctx.lineTo(x - (size / 2), y + (size / 2));
-		ctx.closePath();
-		ctx.fill();
-		x++;
-		}
-	, 50);
-	
-	</script>
 	
 </body>

@@ -1,10 +1,18 @@
+<style>
+html{
+	background:white !important;
+}
+</style>
 <div ng-controller="tableController">
 	<div class="topnav">
 		<div class="content">
 			<ul>
-				<li><a ng-click="logout()" class ="fa fa-home"></a></li>
+				<li><div class="homelogo" ng-click="logout()" ng-include src="'app/views/logo.html'"></div></li>
 				<li ng-repeat="item in topmenu">
 					<a ng-click="setActive(item)" href="#{{item}}" ng-class="{active : activeMenuTop === item}">{{item}}</a>
+				</li>
+				<li style="float:right;">
+					<a href="/API">API</a>
 				</li>
 			</ul>
 		</div>

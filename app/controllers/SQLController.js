@@ -15,13 +15,12 @@ app.controller("SQLController", function ($rootScope, $scope, $cookies, $locatio
 	$scope.go = function(sql){
 		var table_name = $scope.activeMenu;
 		var data = {
-			'type':'free',
-			'data':sql
+			'sql':sql
 		};
 		if(sql){
 			SharedService.addData('Table/' +  [table_name] + '?token=' + $cookies.get('session'), data).then(function(response){
 				console.log(response);
-				if(response.status == 500){
+				if(response.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;
@@ -56,7 +55,7 @@ app.controller("SQLController", function ($rootScope, $scope, $cookies, $locatio
 			SharedService.getData('Schema/' +  [table_name] + '?token=' + $cookies.get('session')).then(function(response){
 				var data = response.data;
 				console.log(data);
-				if(data.status == 500){
+				if(data.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;

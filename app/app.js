@@ -69,6 +69,7 @@ app.controller("mainController", function ($scope, $location, $http, $cookies, T
 	SharedService.setBaseUrl($scope.API);
 	
 	console.log('mainController');
+	$scope.overlay = false;
 	$scope.manage = false;
 	$scope.user = {};
 	$scope.newuser = {};
@@ -99,6 +100,10 @@ app.controller("mainController", function ($scope, $location, $http, $cookies, T
 	
 	$scope.register = function(newuser){
 		
+		$scope.overlay = true;
+		
+		
+		
 		if(newuser.password != newuser.confpassword){
 			
 			$scope.info.status = false;
@@ -117,10 +122,8 @@ app.controller("mainController", function ($scope, $location, $http, $cookies, T
 			}).then(function successCallback(response) {
 					$scope.info.status = true
 					console.log(response);
-					if(response.data == "User and database created"){
-						location.reload();
-					}
 					$scope.info.message = response.data;
+					$scope.overlay = false;
 				}, function errorCallback(response) {
 			});
 		}
@@ -128,14 +131,14 @@ app.controller("mainController", function ($scope, $location, $http, $cookies, T
 	}
 	
 	$scope.login = function (user) {
-		
+		$scope.overlay = true;
 		$http({
 			method: 'POST',
 			type: 'json',
 			url: 'Login',
 			data: user
 		}).then(function successCallback(response) {
-				
+				$scope.overlay = false;
 				if(response.data['status'] = 200){
 					console.log(response);
 					$cookies.put('session', response.data['data']['token']);

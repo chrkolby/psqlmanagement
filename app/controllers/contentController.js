@@ -15,7 +15,7 @@ app.controller("contentController", function ($rootScope, $cookies, $scope, $loc
 		var table_name = TableManage.getTable();
 		SharedService.getData('Table/' +  [table_name] + '?search=' + SearchText + '&token=' + $cookies.get('session')).then(function(response){
 			var data = response.data;
-			if(data.status == 500){
+			if(data.status == 401){
 				$location.path('/log');
 				$rootScope.logged = false;
 				return;
@@ -38,7 +38,7 @@ app.controller("contentController", function ($rootScope, $cookies, $scope, $loc
 			SharedService.getData('Table/' +  [table_name] + '?token=' + $cookies.get("session")).then(function(response){
 				var data = response.data;
 				$scope.currentTableData = data.data;
-				if(data.status == 500){
+				if(data.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;
@@ -75,7 +75,7 @@ app.controller("contentController", function ($rootScope, $cookies, $scope, $loc
 		var items = selected();
 		var table_name = $scope.activeMenu;
 		SharedService.deleteData('Table/' +  [table_name] + '?token=' + $cookies.get("session"),items).then(function(response){
-			if(response.status == 500){
+			if(response.status == 401){
 				$location.path('/log');
 				$rootScope.logged = false;
 				return;

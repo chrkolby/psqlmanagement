@@ -75,11 +75,10 @@ class PSQL(BaseHandler):
 	
 		self.render("index.html", title="My title", items=data)
 		 
-"""class PSQL(BaseHandler):
+class API(BaseHandler):
 
 	def get(self):
-		print("PATH")
-		self.render("index.html")"""
+		self.render("apidoc/index.html")
 
 	
 class Login(web.RequestHandler):
@@ -208,6 +207,7 @@ if __name__ == '__main__':
 		(r'/Login',Login),
 		(r'/Register',Register),
 		(r'/db',PSQL),
+		(r'/API',API),
 		(r'/',Home),
 		(r"/(.*)", web.StaticFileHandler, {"path": root, "default_filename": "index.html"})]
 	, **settings)

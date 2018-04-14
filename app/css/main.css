@@ -13,7 +13,7 @@ html{
 
 .topnav {
 	overflow:hidden;
-    height: 50px;
+    height: 65px;
     width: 100%;
     position: fixed;
     z-index: 1;
@@ -52,6 +52,7 @@ html{
     float: left;
 	list-style:none;
 	height:100%;
+	display:table;
 }
 
 .content li a:hover:not(.active) {
@@ -60,16 +61,18 @@ html{
 }
 
 .content .active{
-	background-color: #4CAF50;
+	background-color: #508abb;
 }
 
 .sidenav .active {
-    background-color: orange;
+    background-color: #84ceeb;
+	color:black;
 }
 
 .content li a {
-	font-size:25px;
-    display: block;
+	font-size:18px;
+    display: table-cell;
+	vertical-align:middle;
     color: white;
     text-align: center;
     padding: 10px 16px;
@@ -82,7 +85,7 @@ html{
     width: 150px;
     position: fixed;
     z-index: 1;
-    top: 50px;
+    top: 65px;
     left: 0;
     background-color: #f1f1f1;
     overflow-x: hidden;
@@ -103,7 +106,7 @@ html{
 }
 
 .sidenav a:hover {
-    background-color: orange;
+    background-color: #84ceeb;
 	color:white;
 	cursor:pointer;
 }
@@ -120,20 +123,26 @@ table {
 	}
 
 td, th {
-		border: 1px solid #ddd;
+		border: 1px solid #e1edff;
 		padding: 8px;
 	}
 
-	tr:nth-child(even){background-color: #f2f2f2;}
+	tr:nth-child(even){background-color: #f4fbff;}
 
-	tr:hover {background-color: #ddd;}
+	table tbody tr:hover td {
+		background-color: #ebfff0;
+		border-color: #ebfff0;
+		transition: all .4s;
+	}
 
 	th {
+		border-color: #6ea1cc;
 		padding-top: 12px;
 		padding-bottom: 12px;
 		text-align: left;
-		background-color: #4CAF50;
+		background-color: #508abb;
 		color: white;
+		
 	}
 	#delete:hover{
 		background-color:orange;
@@ -343,4 +352,9 @@ td, th {
 	padding: 3px;
 	transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
+}
+
+.homelogo:hover{
+	cursor:pointer;
+	background-color:#000000;
 }

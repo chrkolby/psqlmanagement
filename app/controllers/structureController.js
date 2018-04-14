@@ -21,7 +21,7 @@ app.controller("structureController", function ($rootScope, $scope, $cookies, $l
 				
 				console.log(response);
 				
-				if(data.status == 500){
+				if(data.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;

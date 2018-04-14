@@ -1,17 +1,24 @@
 <link rel='stylesheet' href="app/css/login.css">
 <div class="login-page">
 	<div ng-if="info.type == 'login'" class="form">
+	<div ng-show="overlay" class="loginoverlay">
+		 <div class="please-wait">Please Wait...</div>
+	</div>
 	<div ng-include src="'app/views/logo.html'"></div>
 	<h2>Login</h2>
 		<form class="login-form" ng-submit="login(user)">
-			<input ng-model="user.username" type="text" placeholder="Username"/>
-			<input ng-model="user.database" type="text" placeholder="Database"/>
-			<input ng-model="user.password" type="password" placeholder="Password"/>
+			<input required ng-model="user.username" type="text" placeholder="Username"/>
+			<input required ng-model="user.database" type="text" placeholder="Database"/>
+			<input required ng-model="user.password" type="password" placeholder="Password"/>
 			<button type="submit">Login</button>
 		</form>
 		<button style="margin-top:5px;" ng-click="formregister()">Register</button>
 	</div>
 	<div ng-if="info.type == 'register'" class="form">
+	<div ng-show="overlay" class="loginoverlay">
+		 <div class="please-wait">Please Wait...</div>
+	</div>
+	
 	<div ng-include src="'app/views/logo.html'"></div>
 	<h2>Register</h2>
 		<form class="login-form" ng-submit="register(newuser)">

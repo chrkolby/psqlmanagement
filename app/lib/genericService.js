@@ -38,9 +38,9 @@ app.service('SharedService', ['$resource', '$q', 'commonUtilities','$http', func
 			return deferred.promise;
 	
         },
-        updateData: function (methodUrl, args, data) {
+        updateData: function (methodUrl, data) {
 
-            var formattedUrl = commonUtilities.stringFormat(methodUrl, args);
+            var formattedUrl = commonUtilities.stringFormat(methodUrl);
 
             var deferred = $q.defer();
 			$http.put(base + formattedUrl, data)

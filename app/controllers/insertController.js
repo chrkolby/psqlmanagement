@@ -18,8 +18,8 @@ app.controller("insertController", function ($rootScope, $scope, $cookies, $loca
 			'type':'insert',
 			'data':insertData
 			};
-		SharedService.addData('Table/' +  [table_name] + '?token=' + $cookies.get('session'), data).then(function(response){
-			if(response.status == 500){
+		SharedService.updateData('Table/' +  [table_name] + '?token=' + $cookies.get('session'), data).then(function(response){
+			if(response.status == 401){
 				$location.path('/log');
 				$rootScope.logged = false;
 				return;
@@ -29,6 +29,7 @@ app.controller("insertController", function ($rootScope, $scope, $cookies, $loca
 			console.log(response);
 		});
 		console.log(data);
+		$scope.insertData = {};
 	}
 	
 	function init(){
@@ -37,7 +38,7 @@ app.controller("insertController", function ($rootScope, $scope, $cookies, $loca
 			SharedService.getData('Schema/' +  [table_name] + '?token=' + $cookies.get('session')).then(function(response){
 				var data = response.data;
 				console.log(data);
-				if(data.status == 500){
+				if(data.status == 401){
 					$location.path('/log');
 					$rootScope.logged = false;
 					return;

@@ -15,7 +15,7 @@ app.controller("tableController", function ($rootScope, $scope, $location, $cook
  
 	SharedService.getData('Schema?token=' + $cookies.get('session')).then(function(response){
 		var data = response.data;
-		if(data.status == 500){
+		if(data.status == 401){
 			$location.path('/log');
 			$rootScope.logged = false;
 		}

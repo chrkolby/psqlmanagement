@@ -16,13 +16,49 @@ import app
 
 class SchemaHandler(app.BaseHandler):
 
+	"""
+	@api {get} /Schema/:table Database information
+	@apiName GetSchema
+	@apiGroup Schema
+	
+	@apiParam {string} table Table name (optional)
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	
+	@apiSuccess {object} schema Table names in form of a list with objects (no params)
+	@apiSuccess {object} table Table columns in form of a list with objects (table specified)
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"data": [{table_name: "table1"}, {table_name: "table2"}],
+			"status": 200
+		}
+	
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"data": [{column_name: "column1"}, {column_name: "column2"}],
+			"status": 200
+		}
+	@apiError {object} NoConnection No database connection established
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection",
+			"status": 401
+		}
+	
+	"""
+
 	@gen.coroutine
 	def get(self, table_name=None):
 	
 		token = self.get_argument('token', "");
 		
 		if(self.checkConnection(token) == "error"):
-			returnval = {'status': 500, 'message': 'No active database connection'}
+			returnval = {'status': 401, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
 		
@@ -39,13 +75,56 @@ class SchemaHandler(app.BaseHandler):
 
 		self.write(returnval) 
 		
+	"""
+	@api {post} /Schema/:table Create a new table
+	@apiName CreateTable
+	@apiGroup Schema
+	
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	@apiParam (Request message body) {object[]} columns Array of objects with column data
+	@apiParam (Request message body) {string} tablename Name of the table
+	@apiParamExample {json} Request-Example:
+		{
+			"columns": [{"name": "column1", "type": "varchar", "length": "10"}, {"name": "column2", "type": "varchar", "length": "5"}],
+			"tablename": "table"
+		}
+	
+	@apiSuccess {json} table names (no params)
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"message": "Table created",
+			"status": 200
+		}
+	
+	@apiError {object} NoConnection No database connection established
+	@apiError {object} BadRequest Unable to create table from information supplied
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection"
+			"status": 401
+		}
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 400 Bad Request
+		{
+			"sql": "CREATE TABLE table (column varchar (5),column2 int );",
+			"message": "syntax error at or near 'table'",
+			"status": 400
+		}
+	
+	"""
+		
 	@gen.coroutine
 	def post(self):
 	
 		token = self.get_argument('token', "");
 	
 		if(self.checkConnection(token) == "error"):
-			returnval = {'status': 500, 'message': 'No active database connection'}
+			returnval = {'status': 401, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
 			
@@ -55,35 +134,82 @@ class SchemaHandler(app.BaseHandler):
 		
 		print(postData)
 		
-		for key, value in postData.items():
-			if(key != "tablename"):
+		if(postData['columns']):
+		
+			for key, value in postData['columns']:
+				print(key, value);
 				if(value['length'] != ""):
 					sql += value['name'] + " " + value['type'] + " (" + value['length'] + "),"
 				else:
 					sql += value['name'] + " " + value['type'] + " " + value['length'] + ","
 				
-		sql = sql[:-1]
-		sql += ");"
+			sql = sql[:-1]
+			sql += ");"
 
-		try:
-			cursor = yield self.db(token).execute(sql)
-			returnval = {
-				'status': 200,
-				'message': 'Table created'
-			}
-			self.write(returnval)
-			return
+			try:
+				cursor = yield self.db(token).execute(sql)
+				returnval = {
+					'status': 200,
+					'message': 'Table created'
+				}
+				self.write(returnval)
+				return
 
-		except psycopg2.Error as e:
+			except psycopg2.Error as e:
+				self.set_status(400);
+				returnval = {
+					'status': 400,
+					'message':e.diag.message_primary,
+					'sql': sql
+				}
+				self.write(returnval)
+				return
+				
+		else:
+		
+			self.set_status(400);
 			returnval = {
 				'status': 400,
-				'message':e.diag.message_primary,
-				'sql': sql
+				'message': "No column data supplied"
 			}
 			self.write(returnval)
 			return
 
 class TableHandler(app.BaseHandler):
+
+	"""
+	@api {get} /Table/:table Table data
+	@apiName GetTable
+	@apiGroup Table
+	
+	@apiParam {string} table Table name
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	
+	@apiSuccess {object} table All data in table in form of a list with objects
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"data": [{column1: "data1"}, {column2: "data2"}],
+			"status": 200
+		}
+		
+	@apiError {object} NoConnection No database connection established
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection",
+			"status": 401
+		}
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 404 Bad Request
+		{
+			"message": "Table not found",
+			"status": 404
+		}
+	"""
 
 	@gen.coroutine
 	def get(self, table):
@@ -92,7 +218,7 @@ class TableHandler(app.BaseHandler):
 		token = self.get_argument('token', "");
 		
 		if(self.checkConnection(token) == "error"):
-			returnval = {'status': 500, 'message': 'No active database connection'}
+			returnval = {'status': 401, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
 		
@@ -120,12 +246,55 @@ class TableHandler(app.BaseHandler):
 				'data' : all
 			}
 		except:
+			self.set_status(404);
 			data = {
 				'status' : 404,
 				'message' : 'Table not found'
 			}
 
 		self.write(json.dumps(data)) 
+		
+	"""
+	@api {post} /Table/:table SQL call
+	@apiName SQLCall
+	@apiGroup Table
+	
+	@apiParam {string} table Table name
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	@apiParam (Request message body) {string} SQLQuery SQL query to execute on the table
+	@apiParamExample {json} Request-Example:
+		{
+			"sql": "Select * from table1;"
+		}
+	
+	@apiSuccess {json} sql Results from sql query (no params)
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"message": "SQL query executed successfully",
+			"status": 200,
+			"data": [{"id": 1, "foo": "bar"}, {"id": 2, "foo": "baz"}]
+		}
+	
+	@apiError {object} NoConnection No database connection established
+	@apiError {object} BadRequest Unable to create table from information supplied
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection"
+			"status": 401
+		}
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 400 Bad Request
+		{
+			"status": 400, 
+			"message": "relation \"test41\" does not exist"
+		}
+	
+	"""
 		
 	@gen.coroutine
 	def post(self, table):
@@ -134,43 +303,12 @@ class TableHandler(app.BaseHandler):
 		token = self.get_argument('token', "");
 
 		if(self.checkConnection(token) == "error"):
-			returnval = {'status': 500, 'message': 'No active database connection'}
+			returnval = {'status': 401, 'message': 'No active database connection'}
 			self.write(returnval)
-			return
-			
-			
-		if(postData['type'] == 'insert'):
-		
-			columns = "";
-			values = "";
-		
-			i = 0
-			
-			print(postData['data']);
-		
-			for key, value in postData['data'].items():
-			
-				if(i != len(postData['data'])-1):
-					columns += key + ',';
-					if(value == 'DEFAULT'):
-						values += value + ","
-					else:
-						values += "'" + value + "',";
-				else:
-					columns += key
-					if(value == 'DEFAULT'):
-						values += value + ","
-					else:
-						values += "'" + value + "'";
-				i += 1
-				
-			insertString = "INSERT INTO {0} ({1}) VALUES ({2});".format(table, columns, values);
-			
-			postData['data'] = insertString
-		
+			return	
 		
 		try:
-			cursor = yield self.db(token).execute(postData['data'])
+			cursor = yield self.db(token).execute(postData['sql'])
 			
 			try:
 				all = cursor.fetchall();
@@ -183,10 +321,154 @@ class TableHandler(app.BaseHandler):
 			return
 			
 		except psycopg2.Error as e:
+			self.set_status(400);
 			returnval = {'status': 400, 'message': e.diag.message_primary}
 			self.write(returnval)
 			return
 		
+	"""
+	@api {put} /Table/:table Table insertion
+	@apiName Insert
+	@apiGroup Table
+	
+	@apiParam {string} table Table name
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	@apiParam (Request message body) {object[]} data array of data with column name and information to insert
+	@apiParamExample {json} Request-Example:
+		{
+			data: {
+				"id": "DEFAULT", 
+				"bar": "rara"
+			}
+		}
+	
+	@apiSuccess {String} message success description
+	@apiSuccess {int} status status code
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"message": "Row successfully inserted",
+			"status": 200
+		}
+	
+	@apiError {object} NoConnection No database connection established
+	@apiError {object} BadRequest Unable to create table from information supplied
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection"
+			"status": 401
+		}
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 400 Bad Request
+		{
+			"message": "invalid input syntax for integer: \"foo\"",
+			"status": 400
+		}
+	
+	"""
+		
+	@gen.coroutine
+	def put(self, table):
+		
+		token = self.get_argument('token', "");
+		
+		postData = tornado.escape.json_decode(self.request.body)
+		
+		if(self.checkConnection(token) == "error"):
+			returnval = {'status': 401, 'message': 'No active database connection'}
+			self.write(returnval)
+			return	
+		
+		columns = "";
+		values = "";
+		 
+		i = 0
+		
+		for key, value in postData['data'].items():
+		
+			if(i != len(postData['data'])-1):
+				columns += key + ',';
+				if(value == 'DEFAULT'):
+					values += value + ","
+				else:
+					values += "'" + value + "',";
+			else:
+				columns += key
+				if(value == 'DEFAULT'):
+					values += value + ","
+				else:
+					values += "'" + value + "'";
+			i += 1
+			
+		insertString = "INSERT INTO {0} ({1}) VALUES ({2});".format(table, columns, values);
+		
+		print(insertString);
+		
+		try:
+			cursor = yield self.db(token).execute(insertString)
+			
+			returnval = {'status': 200, 'message': 'Row successfully inserted'}
+			self.write(returnval)
+			return
+			
+		except psycopg2.Error as e:
+			self.set_status(400);
+			returnval = {'status': 400, 'message': e.diag.message_primary}
+			self.write(returnval)
+			return
+		
+	"""
+	@api {delete} /Table/:table Table deletion
+	@apiName Delete
+	@apiGroup Table
+	
+	@apiParam {string} table Table name
+	@apiParam (Query string) {string} token Provide current session token
+	```
+	?token=sessionToken
+	```
+	@apiParam (Request message body) {object[]} data array of data with column name and information of row to delete
+	@apiParamExample {json} Request-Example:
+		{
+			0: {
+				"id": 4, 
+				"bar": "baz"
+			}
+			1: {
+				"id": 5,
+				"bar": "foo"
+			}
+		}
+	
+	@apiSuccess {String} message success description
+	@apiSuccess {int} status status code
+	@apiSuccessExample {json} Success-Response:
+		HTTP/1.1 200 OK
+		{
+			"message": "All entries deleted successfully",
+			"status": 200
+		}
+	
+	@apiError {object} NoConnection No database connection established
+	@apiError {object} BadRequest Unable to create table from information supplied
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 401 Not Found
+		{
+			"message": "No active database connection"
+			"status": 401
+		}
+	@apiErrorExample {json} Error-Response:
+		HTTP/1.1 400 Bad Request
+		{
+			"message": "Error deleting entry",
+			"status": 400
+		}
+	
+	"""
 		
 	@gen.coroutine
 	def delete(self, table):
@@ -194,7 +476,7 @@ class TableHandler(app.BaseHandler):
 		token = self.get_argument('token', "");
 	
 		if(self.checkConnection(token) == "error"):
-			returnval = {'status': 500, 'message': 'No active database connection'}
+			returnval = {'status': 401, 'message': 'No active database connection'}
 			self.write(returnval)
 			return
 	
@@ -211,6 +493,7 @@ class TableHandler(app.BaseHandler):
 				
 				
 		if(len(error) > 0):
+			self.set_status(400);
 			data = {
 				'status' : 400,
 				'message' : 'Error deleting entry',
