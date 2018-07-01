@@ -6,5 +6,5 @@ setup(name='chrkolby',
       author='chrkolby',
       author_email='chrkolby@gmail.com',
       url='http://www.python.org/sigs/distutils-sig/',
-      install_requires=['tornado', 'requests', 'beautifulsoup4', 'psycopg2', 'momoko'],
+      install_requires=['tornado', 'requests', 'beautifulsoup4', 'psycopg2', 'momoko', 'selenium'],
      )
