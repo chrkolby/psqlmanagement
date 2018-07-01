@@ -91,7 +91,7 @@ class testing(BaseHandler):
 
 		# download the chrome driver from https://sites.google.com/a/chromium.org/chromedriver/downloads and put it in the
 		# current directory
-		chrome_driver = os.getcwd() +"/chromedriver.exe"
+		chrome_driver = os.getcwd() +"/chromedriver"
 
 		# go to Google and click the I'm Feeling Lucky button
 		driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
